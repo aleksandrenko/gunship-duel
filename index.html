@@ -93,7 +93,7 @@
   .edsec { font:800 11px 'Orbitron',sans-serif; letter-spacing:.2em; margin:14px 0 6px; opacity:.8; }
   .empty, .edhint { color:#8fb0bf; font-size:13px; padding:4px 0; }
   #edParts .wrow { align-items:center; }
-  #edModels { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
+  #edModels { display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; }
   .edrow em { font:700 10px 'Orbitron',sans-serif; letter-spacing:.1em; font-style:normal; white-space:nowrap; }
   .edrow em.ok { color:#8dff7a; } .edrow em.todo { color:var(--amber); }
   #edSave:disabled { background:rgba(141,255,122,.18); color:#8dff7a; cursor:default; }
@@ -616,7 +616,109 @@ function shipModelB(o) {
   for (const f of fans) group.add(f);
   return { group, exhausts, fans, navLights, racks: [V3(10.6, -5.6, 9.5), V3(-10.6, -5.6, 9.5)], guns: [V3(-2, -6.5, 41.2), V3(2, -6.5, 41.2)] };
 }
-const MODELS = { A: { name: 'Vanguard', info: 'twin-nacelle gunship', build: o => shipModel(o) }, B: { name: 'Bulwark', info: 'armored hauler, turbine engines', build: o => shipModelB(o) } };
+// third design: small white wedge interceptor — long canopy, boxy side pods with orange-rimmed thrusters, rear engine cluster, orange tail fin
+function shipModelC(o) {
+  const rng = mulberry32(o.seed + 11), R = (a, b) => a + (b - a) * rng();
+  const parts = {};
+  const E = new THREE.Euler(), Q = new THREE.Quaternion(), M = new THREE.Matrix4(), P = V3(), ONE = V3(1, 1, 1);
+  const push = (k, g) => (parts[k] || (parts[k] = [])).push(g);
+  const add = (k, g, x = 0, y = 0, z = 0, rx = 0, ry = 0, rz = 0) => {
+    if (g.index) g = g.toNonIndexed();
+    g.applyMatrix4(M.compose(P.set(x, y, z), Q.setFromEuler(E.set(rx, ry, rz)), ONE)); push(k, g);
+  };
+  const box = (k, w, h, d, x, y, z, rx, ry, rz) => add(k, new THREE.BoxGeometry(w, h, d), x, y, z, rx, ry, rz);
+  const cyl = (k, r, len, x, y, z, rx, ry, rz, seg = 12, r2 = r) => add(k, new THREE.CylinderGeometry(r, r2, len, seg), x, y, z, rx, ry, rz);
+  const Sx = (z, w, h, c, y = 0, x = 0) => ({ z, y, w, h, c, pts: oct(w, h, c, y, x) });
+  const gk = () => { const r = rng(); return r < 0.7 ? 'hull' : r < 0.92 ? 'metal' : 'dark'; };
+  const PI2 = Math.PI / 2;
+  const turret = (x, y, z, r = 2.0) => {
+    cyl('metal', r, 1, x, y, z, 0, 0, 0, 16);
+    box('hull', r * 1.6, r * 0.8, r * 1.85, x, y + r * 0.6, z + 0.3);
+    cyl('dark', 0.25, r * 2.4, x - r * 0.3, y + r * 0.65, z + r * 2.1, PI2);
+    cyl('dark', 0.25, r * 2.4, x + r * 0.3, y + r * 0.65, z + r * 2.1, PI2);
+  };
+
+  // wedge hull tapering to a pointed nose, raised spine
+  add('hull', loft([Sx(-27, 15, 8, 2.5, 1), Sx(-21, 18, 9, 3, 1), Sx(0, 15, 8, 3, 0.5), Sx(14, 10, 6.5, 2.5, 0), Sx(24, 6.5, 4.6, 1.8, -0.5), Sx(31, 3.2, 2.4, 0.9, -1)]));
+  add('hull', loft([Sx(-25, 7, 3, 1, 5.6), Sx(-4, 6.4, 3, 1, 5.2), Sx(6, 4.6, 2, 0.8, 4.4)]));
+  // long front canopy and a small rear one
+  add('glass', loft([Sx(6, 5.8, 2.4, 1, 3.9), Sx(16, 5, 2.2, 0.9, 3.0), Sx(25, 3, 1.6, 0.6, 1.3)]));
+  add('glass', loft([Sx(-8, 4.6, 1.8, 0.7, 7.2), Sx(-2, 4.2, 1.6, 0.6, 6.9)]));
+  box('glowDim', 4, 0.2, 9, 0, 3.0, 14, 0.12);
+  for (const s of [-1, 1]) for (const z of [9, 15, 21]) box('hull', 0.35, 0.35, 0.35, s * 2.5, 4.2 - (z - 9) * 0.12, z);
+  // orange nose bumper with a grille
+  box('accent', 7.5, 0.6, 1.2, 0, -1.2, 28.6); box('accent', 7.5, 0.6, 1.2, 0, -4.2, 28.2);
+  for (const s of [-1, 1]) box('accent', 0.6, 3.6, 1.2, s * 3.5, -2.7, 28.4);
+  for (let i = 0; i < 4; i++) box('dark', 6.2, 0.3, 0.6, 0, -1.7 - i * 0.7, 28.4);
+  for (const s of [-1, 1]) { cyl('accent', 0.22, 12, s * 4.3, -3.8, 24, PI2); cyl('metal', 0.38, 7, s * 2.2, -3.6, 27.5, PI2); }
+  // swept side plates and orange pinstripes
+  for (const s of [-1, 1]) {
+    box('hull', 8, 0.9, 18, s * 10, -0.4, -5, 0, s * 0.22, -s * 0.08);
+    box('accent', 0.15, 0.3, 22, s * 6.9, 0.6, 4, 0, -s * 0.13, 0);
+    box('accent', 0.15, 0.3, 12, s * 7.5, 3.4, -14);
+  }
+  // side engine pods: boxy, orange-rimmed rear thrusters with glowing nozzles
+  const exhausts = [], navLights = [];
+  for (const s of [-1, 1]) {
+    const px = s * 14, py = 0.5;
+    box('hull', 7, 7, 15, px, py, -7.5);
+    box('hull', 6, 1, 10, px, py + 4, -9);
+    box('accent', 0.6, 3.2, 4, px, py + 6, -12.5, -0.35);
+    // orange rim around the rear face
+    box('accent', 7.6, 0.9, 1.4, px, py + 3.4, -15.3); box('accent', 7.6, 0.9, 1.4, px, py - 3.4, -15.3);
+    box('accent', 0.9, 7.6, 1.4, px - 3.4, py, -15.3); box('accent', 0.9, 7.6, 1.4, px + 3.4, py, -15.3);
+    box('dark', 6, 6, 0.4, px, py, -15.05);
+    for (const [dx, dy] of [[-1.4, -1.4], [1.4, -1.4], [-1.4, 1.4], [1.4, 1.4]]) {
+      cyl('metal', 1.25, 0.8, px + dx, py + dy, -15.3, PI2, 0, 0, 14);
+      add('engine', new THREE.CircleGeometry(0.95, 14), px + dx, py + dy, -15.75, 0, Math.PI, 0);
+    }
+    exhausts.push(V3(px, py, -16));
+    box('dark', 3, 2.2, 6, s * 9.5, 0.2, -8);
+    box('metal', 2.8, 1.6, 1.2, px, py + 1.6, 0.3);
+    navLights.push({ p: V3(px + s * 3.7, py + 2, -7), color: s > 0 ? 0xff3030 : 0x30ff60 });
+  }
+  // rear engine cluster and orange tail fin
+  cyl('metal', 2.6, 12, 0, 4.4, -26, PI2, 0, 0, 16);
+  for (const s of [-1, 1]) cyl('dark', 2.1, 11, s * 3.8, 1.6, -26.5, PI2, 0, 0, 16);
+  for (const z of [-22, -27, -30]) cyl('dark', 2.75, 0.8, 0, 4.4, z, PI2, 0, 0, 16);
+  cyl('metal', 2.2, 2, 0, 4.4, -33, PI2, 0, 0, 16, 2.6);
+  add('engine', new THREE.CircleGeometry(1.8, 16), 0, 4.4, -34.05, 0, Math.PI, 0);
+  for (const s of [-1, 1]) add('engine', new THREE.CircleGeometry(1.5, 16), s * 3.8, 1.6, -32.05, 0, Math.PI, 0);
+  exhausts.push(V3(0, 4.4, -34.2));
+  box('accent', 0.8, 6, 7, 0, 9.5, -24, -0.4);
+  box('accent', 0.5, 2.5, 3, 0, 12.6, -27, -0.5);
+  navLights.push({ p: V3(0, 13.4, -28), color: 0xffffff, strobe: true });
+  // underside
+  box('hull', 6, 1.6, 30, 0, -4.2, -6);
+  for (const z of [12, -16]) for (const s of [-1, 1]) { cyl('metal', 0.4, 2.6, s * 3, -5.8, z); cyl('dark', 1, 0.5, s * 3, -7.2, z, 0, 0, 0, 10); }
+  if (o.cls !== 'frigate') turret(0, 7.1, -14, 2.0);
+  if (o.cls === 'cruiser' || o.cls === 'battleship') turret(0, 6.3, 2.5, 1.7);
+  if (o.cls === 'battleship') { turret(14, 4.5, -4, 1.5); turret(-14, 4.5, -4, 1.5); }
+
+  function gTop(x0, x1, z0, z1, y, n) {
+    for (let i = 0; i < n; i++) {
+      const big = rng() < 0.25;
+      const w = big ? R(1.5, 3.5) : R(0.4, 1.8), d = big ? R(2, 6) : R(0.5, 3), h = big ? R(0.12, 0.3) : R(0.12, 0.8);
+      box(big ? 'hull' : gk(), w, h, d, R(x0 + w / 2, x1 - w / 2), y + h / 2, R(z0 + d / 2, z1 - d / 2));
+    }
+  }
+  gTop(-3, 3, -24, -9, 7.1, 18);
+  gTop(-6.5, -3.6, -20, 2, 4.4, 10); gTop(3.6, 6.5, -20, 2, 4.4, 10);
+  for (const s of [-1, 1]) gTop(s * 14 - 2.5, s * 14 + 2.5, -14, -4, 4.5 + 0.5, 6);
+
+  const group = new THREE.Group();
+  for (const k in parts) {
+    const g = mergeGeometries(parts[k], false);
+    if (['hull', 'accent', 'dark', 'metal'].includes(k)) triplanar(g, 1 / 22);
+    group.add(new THREE.Mesh(g, o.mats[k]));
+  }
+  return { group, exhausts, navLights, racks: [V3(10, -2, -2), V3(-10, -2, -2)], guns: [V3(-2.2, -3.6, 31.2), V3(2.2, -3.6, 31.2)] };
+}
+const MODELS = {
+  A: { name: 'Vanguard', info: 'twin-nacelle gunship', size: 1, build: o => shipModel(o) },
+  B: { name: 'Bulwark', info: 'armored hauler, turbines', size: 1, build: o => shipModelB(o) },
+  C: { name: 'Lancer', info: 'small white interceptor', size: 0.85, paint: { player: [0xe9e5dd, 0xe8572a], enemy: [0x8a8480, 0xc23b22] }, build: o => shipModelC(o) },
+};
 
 // ───────────────────────────── shaders
 const NOISE = /* glsl */`
@@ -1030,15 +1132,16 @@ class Ship {
   constructor(side, design, seed, suffix = '') {
     const clsKey = design.hull, S = SIDES[side], cls = CLASSES[clsKey];
     this.design = { hull: design.hull, parts: design.parts.slice() };
-    this.side = side; this.cls = cls; this.sc = cls.sc; this.isPlayer = side === 'player';
+    const MK = MODELS[design.model] ? design.model : 'A', MD = MODELS[MK];
+    this.side = side; this.cls = cls; this.sc = cls.sc * MD.size; this.isPlayer = side === 'player';
     this.name = `${S.label} ${cls.name}${suffix}`; this.o = S;
-    this.mats = makeMaterials(S);
-    this.model = (MODELS[design.model] || MODELS.A).build({ ...S, seed, cls: clsKey, mats: this.mats });
-    this.design.model = MODELS[design.model] ? design.model : 'A';
-    this.model.group.scale.setScalar(cls.sc);
+    this.mats = makeMaterials(MD.paint ? { ...S, hull: MD.paint[side][0], accent: MD.paint[side][1] } : S);
+    this.model = MD.build({ ...S, seed, cls: clsKey, mats: this.mats });
+    this.design.model = MK;
+    this.model.group.scale.setScalar(this.sc);
     this.root = new THREE.Group(); this.root.add(this.model.group); scene.add(this.root);
     this.inv = new THREE.Matrix4();
-    this.R = SHIELD_R.clone().multiplyScalar(cls.sc); this.Cc = SHIELD_C.clone().multiplyScalar(cls.sc);
+    this.R = SHIELD_R.clone().multiplyScalar(this.sc); this.Cc = SHIELD_C.clone().multiplyScalar(this.sc);
 
     this.shieldMat = new THREE.ShaderMaterial({
       uniforms: { uColor: { value: new THREE.Color(S.shield) }, uTime: { value: 0 }, uStrength: { value: 1 }, uFlash: { value: 0 }, uArcs: { value: new THREE.Vector4(1, 1, 1, 1) }, uHits: { value: Array.from({ length: 6 }, () => new THREE.Vector4(0, 0, 0, -99)) } },
@@ -1201,7 +1304,7 @@ function randomFleet(budget) {
   const hullCost = t => t.reduce((a, h) => a + CLASSES[h].cost, 0);
   const ok = T.filter(t => hullCost(t) <= budget * 0.65);
   const pick = ok.length ? ok[Math.floor(Math.random() * Math.min(ok.length, 6))] : ['frigate'];
-  const fleet = pick.map(h => ({ hull: h, model: Math.random() < 0.5 ? 'A' : 'B', parts: [] }));
+  const fleet = pick.map(h => ({ hull: h, model: 'ABC'[Math.floor(Math.random() * 3)], parts: [] }));
   let left = budget - fleetCost(fleet);
   for (const d of fleet) { const k = CLASSES[d.hull].speed <= 3 && Math.random() < 0.6 ? 'fusion' : 'laser'; d.parts.push(k); left -= WEAPONS[k].cost; }
   const pool = ['laser', 'laser', 'pulse', 'fusion', 'fusion', 'missile', 'missile', 'pd', 'armor', 'shieldb'];
