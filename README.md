@@ -4,7 +4,7 @@ Turn-based tactical fleet battle in orbit, in the spirit of classic 4X space-com
 
 **Play:** https://aleksandrenko.github.io/gunship-duel/
 
-- Fleet design screen: pick up to 6 hulls (frigate, destroyer, cruiser, battleship) and fit components into each hull's space within a 170 BC budget; the enemy gets a random fleet of the same cost
+- Fleet design screen: up to 6 ships, each with a hull (frigate, destroyer, cruiser, battleship), a design (Vanguard gunship or Bulwark turbine hauler) and any number of components; every ship must be saved before launch; the enemy gets a random fleet of the same total cost
 - Lasers, pulse cannons, fusion beams, missiles that travel across rounds, point defense
 - Four shield arcs per ship, armor, structure; asteroids block movement and beams
 - Ships act one at a time in initiative order

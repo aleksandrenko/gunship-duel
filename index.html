@@ -93,7 +93,11 @@
   .edsec { font:800 11px 'Orbitron',sans-serif; letter-spacing:.2em; margin:14px 0 6px; opacity:.8; }
   .empty, .edhint { color:#8fb0bf; font-size:13px; padding:4px 0; }
   #edParts .wrow { align-items:center; }
-  #edSpace .bar { color:var(--hud); }
+  #edModels { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
+  .edrow em { font:700 10px 'Orbitron',sans-serif; letter-spacing:.1em; font-style:normal; white-space:nowrap; }
+  .edrow em.ok { color:#8dff7a; } .edrow em.todo { color:var(--amber); }
+  #edSave:disabled { background:rgba(141,255,122,.18); color:#8dff7a; cursor:default; }
+  .big:disabled { opacity:.45; cursor:default; }
   @media (max-width:1150px) { .card { width:250px; grid-template-columns:76px 1fr; } .arcs { width:76px; height:76px; } #log { display:none; } }
 </style>
 </head>
@@ -131,12 +135,14 @@
 <div id="editor" class="hidden">
   <div class="panel" id="edLeft"><h3><span>YOUR FLEET</span><span id="edCount"></span></h3><div id="edFleet"></div>
     <button class="act" id="edAdd" style="width:100%">+ ADD SHIP</button>
-    <p class="edhint">Up to 6 ships. Click a ship to refit it. The enemy brings a random fleet built on the same budget.</p></div>
+    <p class="edhint">Up to 6 ships. Configure each ship and press <b>Save ship configuration</b> — every ship must be saved before launch. No limit on weapons: the enemy brings a random fleet of the same total cost.</p></div>
   <div class="panel" id="edRight"><h3 id="edTitle"></h3>
-    <div class="edsec">HULL</div><div id="edHulls"></div><div id="edSpace"></div><div id="edStats"></div>
+    <button class="big" id="edSave" style="width:100%;margin:6px 0 2px">SAVE SHIP CONFIGURATION</button>
+    <div class="edsec">DESIGN</div><div id="edModels"></div>
+    <div class="edsec">HULL</div><div id="edHulls"></div><div id="edStats"></div>
     <div class="edsec">INSTALLED</div><div id="edParts"></div>
     <div class="edsec">COMPONENTS — CLICK TO INSTALL</div><div id="edCat"></div></div>
-  <div class="edfoot"><button class="act" id="edReset">DEFAULT FLEET</button><div class="panel" id="edBudget" style="position:static"></div><button class="big" id="edLaunch">LAUNCH BATTLE</button></div>
+  <div class="edfoot"><button class="act" id="edReset">DEFAULT FLEET</button><div class="panel" id="edBudget" style="position:static"></div><span id="edLaunchHint" class="edhint" style="text-shadow:0 0 6px #000"></span><button class="big" id="edLaunch">LAUNCH BATTLE</button></div>
 </div>
 
 <div id="over" class="overlay center hidden">
@@ -335,6 +341,7 @@ function makeMaterials(o) {
     glow: new THREE.MeshBasicMaterial({ color: new THREE.Color(o.glow).multiplyScalar(4) }),
     glowDim: new THREE.MeshBasicMaterial({ color: new THREE.Color(o.glow).multiplyScalar(1.4) }),
     engine: new THREE.MeshBasicMaterial({ color: new THREE.Color(o.engine).multiplyScalar(5) }),
+    fan: new THREE.MeshStandardMaterial({ color: 0xd9a645, roughness: 0.35, metalness: 0.85, envMapIntensity: 0.9 }),
   };
 }
 
@@ -478,6 +485,138 @@ function shipModel(o) {
   }
   return { group, exhausts, racks, navLights, guns: [V3(-1.5, -5.9, 36.4), V3(1.5, -5.9, 36.4)] };
 }
+
+// second design: long armored hauler with two round turbine engines mounted high at the rear
+function flipGeo(g) {
+  g = g.index ? g.toNonIndexed() : g;
+  for (const name of ['position', 'normal', 'uv']) {
+    const a = g.attributes[name], n = a.itemSize;
+    for (let i = 0; i < a.count; i += 3) for (let k = 0; k < n; k++) { const t = a.array[(i + 1) * n + k]; a.array[(i + 1) * n + k] = a.array[(i + 2) * n + k]; a.array[(i + 2) * n + k] = t; }
+  }
+  const nr = g.attributes.normal.array; for (let i = 0; i < nr.length; i++) nr[i] = -nr[i];
+  return g;
+}
+function shipModelB(o) {
+  const rng = mulberry32(o.seed + 5), R = (a, b) => a + (b - a) * rng();
+  const parts = {};
+  const E = new THREE.Euler(), Q = new THREE.Quaternion(), M = new THREE.Matrix4(), P = V3(), ONE = V3(1, 1, 1);
+  const push = (k, g) => (parts[k] || (parts[k] = [])).push(g);
+  const add = (k, g, x = 0, y = 0, z = 0, rx = 0, ry = 0, rz = 0) => {
+    if (g.index) g = g.toNonIndexed();
+    g.applyMatrix4(M.compose(P.set(x, y, z), Q.setFromEuler(E.set(rx, ry, rz)), ONE)); push(k, g);
+  };
+  const box = (k, w, h, d, x, y, z, rx, ry, rz) => add(k, new THREE.BoxGeometry(w, h, d), x, y, z, rx, ry, rz);
+  const cyl = (k, r, len, x, y, z, rx, ry, rz, seg = 12, r2 = r, open = false) => add(k, new THREE.CylinderGeometry(r, r2, len, seg, 1, open), x, y, z, rx, ry, rz);
+  const Sx = (z, w, h, c, y = 0, x = 0) => ({ z, y, w, h, c, pts: oct(w, h, c, y, x) });
+  const gk = () => { const r = rng(); return r < 0.66 ? 'hull' : r < 0.9 ? 'metal' : 'dark'; };
+  const PI2 = Math.PI / 2;
+  const turret = (x, y, z, r = 2.2) => {
+    cyl('metal', r, 1.1, x, y, z, 0, 0, 0, 16);
+    box('hull', r * 1.6, r * 0.8, r * 1.85, x, y + r * 0.65, z + 0.3);
+    box('dark', r * 1.1, r * 0.4, 1.0, x, y + r * 0.65, z + r * 1.1);
+    cyl('dark', 0.28, r * 2.4, x - r * 0.32, y + r * 0.7, z + r * 2.2, PI2);
+    cyl('dark', 0.28, r * 2.4, x + r * 0.32, y + r * 0.7, z + r * 2.2, PI2);
+  };
+
+  // hull with a rounded, blunt nose and stacked armor decks
+  add('hull', loft([Sx(-34, 16, 10, 3, 0.5), Sx(-30, 18, 12, 3.5), Sx(14, 18, 12, 3.5), Sx(24, 17, 11, 4.5, -0.5), Sx(31, 14, 9, 4.5, -1.2), Sx(35, 9, 6, 3, -1.8)]));
+  add('hull', loft([Sx(-31, 14, 3, 1, 7.2), Sx(16, 14, 3, 1, 7.2), Sx(21, 11, 2, 1, 6.6)]));
+  add('hull', loft([Sx(-27, 11, 2.4, 0.8, 9.9), Sx(-2, 11, 2.4, 0.8, 9.9), Sx(2, 8, 1.4, 0.6, 9.4)]));
+  add('hull', loft([Sx(-30, 1.4, 8, 0.4, -0.5, 9.4), Sx(20, 1.4, 8, 0.4, -0.5, 9.4)]));
+  add('hull', loft([Sx(-30, 1.4, 8, 0.4, -0.5, -9.4), Sx(4, 1.4, 8, 0.4, -0.5, -9.4)]));
+  box('dark', 12, 6, 1.6, 0, 1, -34.6);
+  // cockpit: wide sloped glass band with warm-lit windows, armored brow
+  add('glass', loft([Sx(22, 13, 2.4, 0.8, 5.3), Sx(29, 11, 2.4, 0.8, 3.9), Sx(33.6, 7.4, 2, 0.6, 1.7)]));
+  box('glowDim', 9, 0.25, 6, 0, 4.4, 26.5, 0.22);
+  for (const s of [-1, 1]) {
+    box('glow', 2.4, 0.8, 0.3, s * 2.3, 1.2, 34.6, -0.45);
+    box('glowDim', 2.0, 0.7, 0.3, s * 5.2, 2.0, 31.6, -0.45, s * 0.55);
+  }
+  box('hull', 13, 1.1, 3.6, 0, 6.4, 21.5, -0.25);
+  // chin machinery and twin guns
+  box('dark', 8, 3, 6, 0, -6.2, 30);
+  for (const s of [-1, 1]) {
+    cyl('metal', 1.1, 4, s * 2.8, -8.2, 31);
+    cyl('metal', 0.42, 10, s * 2, -6.5, 36, PI2);
+    cyl('dark', 0.62, 1.2, s * 2, -6.5, 40.4, PI2);
+  }
+  // keel, landing gear, fuel tanks
+  box('hull', 10, 2, 46, 0, -6.8, -4);
+  for (const z of [20, -24]) for (const s of [-1, 1]) { cyl('metal', 0.5, 4, s * 5, -9.5, z); cyl('dark', 1.4, 0.6, s * 5, -11.6, z, 0, 0, 0, 10); }
+  for (const s of [-1, 1]) {
+    cyl('metal', 2.3, 30, s * 10.6, -5.6, -6, PI2, 0, 0, 14);
+    for (const z of [-18, -6, 6]) cyl('dark', 2.45, 0.8, s * 10.6, -5.6, z, PI2, 0, 0, 14);
+    box('accent', 0.2, 1.2, 3.2, s * 10.15, 1.4, -20 + s * 3);
+  }
+  // open cargo bay with ramp (starboard)
+  box('glow', 0.3, 6, 8, -8.95, -0.5, 10);
+  box('dark', 0.7, 0.8, 9.6, -9.1, 2.9, 10); box('dark', 0.7, 0.8, 9.6, -9.1, -3.9, 10);
+  box('dark', 0.7, 7.6, 0.8, -9.1, -0.5, 5.6); box('dark', 0.7, 7.6, 0.8, -9.1, -0.5, 14.4);
+  box('hull', 5, 0.45, 7.6, -11.2, -5.7, 10, 0, 0, 0.6);
+
+  // turbine engines
+  const exhausts = [], fans = [], navLights = [];
+  const fanGeo = (() => {
+    const gs = [new THREE.ConeGeometry(1.6, 2.4, 14).rotateX(PI2)];
+    for (let i = 0; i < 14; i++) gs.push(new THREE.BoxGeometry(0.55, 4.6, 0.22).rotateY(0.55).translate(0, 3.4, 0).rotateZ(i * Math.PI * 2 / 14));
+    return mergeGeometries(gs.map(g => g.toNonIndexed()));
+  })();
+  for (const s of [-1, 1]) {
+    const ex = s * 14, ey = 8.5, ez0 = -19, ez1 = 7, len = ez1 - ez0, cz = (ez0 + ez1) / 2;
+    cyl('hull', 6.5, len, ex, ey, cz, PI2, 0, 0, 30, 6.5, true);
+    for (const k of [0.15, 0.45, 0.7]) cyl('dark', 6.75, 1.2, ex, ey, ez0 + len * k, PI2, 0, 0, 30);
+    cyl('accent', 6.7, 1.8, ex, ey, ez1 - 4, PI2, 0, 0, 30);
+    cyl('metal', 7.1, 2.4, ex, ey, ez1 + 0.6, PI2, 0, 0, 30, 7.1, true);
+    add('metal', new THREE.RingGeometry(6.0, 7.1, 30, 1), ex, ey, ez1 + 1.8);
+    add('dark', flipGeo(new THREE.CylinderGeometry(6.1, 6.1, 5, 30, 1, true)), ex, ey, ez1 - 0.7, PI2);
+    add('dark', new THREE.CircleGeometry(6.1, 30), ex, ey, ez1 - 3.1);
+    cyl('metal', 6.2, 3, ex, ey, ez0 - 1.5, PI2, 0, 0, 26, 5.0);
+    add('engine', new THREE.CircleGeometry(4.3, 26), ex, ey, ez0 - 3.05, 0, Math.PI, 0);
+    exhausts.push(V3(ex, ey, ez0 - 3.2));
+    const fan = new THREE.Mesh(fanGeo, o.mats.fan); fan.position.set(ex, ey, ez1 - 1.8); fans.push(fan);
+    box('hull', 6, 4, 16, s * 9.5, 6.4, -6);
+    box('dark', 4, 1.2, 12, s * 9.8, 4.2, -6);
+    box('hull', 4, 1.4, 14, ex, ey + 6.8, -6);
+    box('accent', 1.4, 0.2, 3, ex + s * 1.2, ey + 7.55, 0);
+    navLights.push({ p: V3(ex + s * 6.9, ey, -6), color: s > 0 ? 0xff3030 : 0x30ff60 });
+  }
+  navLights.push({ p: V3(0, 13.5, -24), color: 0xffffff, strobe: true });
+  if (o.cls !== 'frigate') turret(0, 11.4, -14, 2.4);
+  if (o.cls === 'cruiser' || o.cls === 'battleship') turret(0, 9.2, 10, 2.1);
+  if (o.cls === 'battleship') { turret(14, 15.6, -12, 1.6); turret(-14, 15.6, -12, 1.6); }
+  cyl('metal', 0.12, 6, -3, 14, -24); cyl('metal', 0.1, 4, 3.5, 13, -20);
+
+  // greebles
+  function gTop(x0, x1, z0, z1, y, n, dir = 1) {
+    for (let i = 0; i < n; i++) {
+      const big = rng() < 0.2;
+      const w = big ? R(2, 5) : R(0.4, 2.4), d = big ? R(3, 8) : R(0.5, 3.8), h = big ? R(0.15, 0.4) : R(0.15, 1.1);
+      box(big ? 'hull' : gk(), w, h, d, R(x0 + w / 2, x1 - w / 2), y + dir * h / 2, R(z0 + d / 2, z1 - d / 2));
+    }
+  }
+  function gSide(x, y0, y1, z0, z1, n, dir) {
+    for (let i = 0; i < n; i++) {
+      const big = rng() < 0.2;
+      const t = big ? R(0.15, 0.4) : R(0.15, 0.9), h = big ? R(1.5, 3.5) : R(0.4, 2), d = big ? R(3, 8) : R(0.5, 3.5);
+      box(big ? 'hull' : gk(), t, h, d, x + dir * t / 2, R(y0 + h / 2, y1 - h / 2), R(z0 + d / 2, z1 - d / 2));
+    }
+  }
+  gTop(-6, 6, 2, 16, 8.7, 30);
+  gTop(-4.6, 4.6, -26, -3, 11.1, 26);
+  gSide(10.1, -4, 3, -29, 19, 32, 1); gSide(-10.1, -4, 3, -29, 3.5, 24, -1);
+  gTop(-4.5, 4.5, -26, 18, -7.8, 22, -1);
+  for (const s of [-1, 1]) gTop(s * 14 - 1.8, s * 14 + 1.8, -12, 0, 16.6, 8);
+
+  const group = new THREE.Group();
+  for (const k in parts) {
+    const g = mergeGeometries(parts[k], false);
+    if (['hull', 'accent', 'dark', 'metal'].includes(k)) triplanar(g, 1 / 22);
+    group.add(new THREE.Mesh(g, o.mats[k]));
+  }
+  for (const f of fans) group.add(f);
+  return { group, exhausts, fans, navLights, racks: [V3(10.6, -5.6, 9.5), V3(-10.6, -5.6, 9.5)], guns: [V3(-2, -6.5, 41.2), V3(2, -6.5, 41.2)] };
+}
+const MODELS = { A: { name: 'Vanguard', info: 'twin-nacelle gunship', build: o => shipModel(o) }, B: { name: 'Bulwark', info: 'armored hauler, turbine engines', build: o => shipModelB(o) } };
 
 // ───────────────────────────── shaders
 const NOISE = /* glsl */`
@@ -894,7 +1033,8 @@ class Ship {
     this.side = side; this.cls = cls; this.sc = cls.sc; this.isPlayer = side === 'player';
     this.name = `${S.label} ${cls.name}${suffix}`; this.o = S;
     this.mats = makeMaterials(S);
-    this.model = shipModel({ ...S, seed, cls: clsKey, mats: this.mats });
+    this.model = (MODELS[design.model] || MODELS.A).build({ ...S, seed, cls: clsKey, mats: this.mats });
+    this.design.model = MODELS[design.model] ? design.model : 'A';
     this.model.group.scale.setScalar(cls.sc);
     this.root = new THREE.Group(); this.root.add(this.model.group); scene.add(this.root);
     this.inv = new THREE.Matrix4();
@@ -970,6 +1110,7 @@ class Ship {
     }
     this.flameOuter.uniforms.uTime.value = this.flameInner.uniforms.uTime.value = t;
     this.flameOuter.uniforms.uPower.value = this.flameInner.uniforms.uPower.value = 0.5 + this.power * 0.5;
+    for (const f of this.model.fans || []) f.rotation.z += dt * (0.6 + this.power * 7);
     for (const n of this.navs) n.s.material.opacity = n.strobe ? 0.35 + 0.4 * Math.max(0, Math.sin(t * 2.2 + this.phase)) ** 4 : 0.55 + 0.25 * Math.sin(t * 1.6 + this.phase);
     this.shieldFlash = Math.max(0, (this.shieldFlash || 0) - dt * 2);
     const su = this.shieldMat.uniforms, f = this.shields.map(s => s / this.maxShield);
@@ -1041,30 +1182,35 @@ class Ship {
 }
 
 const debris = [];
-const BUDGET = 170, MAX_SHIPS = 6;
-const DEFAULT_FLEET = Object.keys(CLASSES).reverse().map(k => ({ hull: k, parts: CLASSES[k].w.slice() }));
-const cloneFleet = f => f.map(d => ({ hull: d.hull, parts: d.parts.slice() }));
-const designSpace = d => d.parts.reduce((a, k) => a + WEAPONS[k].space, 0);
+const MAX_SHIPS = 6;
+const DEFAULT_FLEET = Object.keys(CLASSES).reverse().map(k => ({ hull: k, model: k === 'battleship' || k === 'cruiser' ? 'B' : 'A', parts: CLASSES[k].w.slice(), saved: false }));
+const cloneFleet = f => f.map(d => ({ hull: d.hull, model: d.model || 'A', parts: d.parts.slice(), saved: !!d.saved }));
 const designCost = d => CLASSES[d.hull].cost + d.parts.reduce((a, k) => a + WEAPONS[k].cost, 0);
 const fleetCost = f => f.reduce((a, d) => a + designCost(d), 0);
 function loadFleet() {
-  try { const f = JSON.parse(localStorage.getItem('gunship-duel-fleet')); if (Array.isArray(f) && f.length && f.every(d => CLASSES[d.hull] && d.parts.every(k => WEAPONS[k]))) return f; } catch (e) {}
+  try { const f = JSON.parse(localStorage.getItem('gunship-duel-fleet')); if (Array.isArray(f) && f.length && f.every(d => CLASSES[d.hull] && Array.isArray(d.parts) && d.parts.every(k => WEAPONS[k]))) return cloneFleet(f).slice(0, MAX_SHIPS); } catch (e) {}
   return null;
 }
 function saveFleet() { try { localStorage.setItem('gunship-duel-fleet', JSON.stringify(playerFleet)); } catch (e) {} }
 let playerFleet = loadFleet() || cloneFleet(DEFAULT_FLEET);
 function randomFleet(budget) {
+  // no space limits: the enemy spends the same total as your fleet, spread over a random hull mix
   const T = [['battleship', 'cruiser', 'destroyer', 'frigate'], ['cruiser', 'cruiser', 'destroyer', 'destroyer'], ['battleship', 'battleship'],
-             ['destroyer', 'destroyer', 'destroyer', 'frigate', 'frigate'], ['battleship', 'frigate', 'frigate', 'frigate'], ['cruiser', 'destroyer', 'destroyer', 'frigate', 'frigate']];
-  const fleet = T[Math.floor(Math.random() * T.length)].map(h => ({ hull: h, parts: [] }));
+             ['destroyer', 'destroyer', 'destroyer', 'frigate', 'frigate'], ['battleship', 'frigate', 'frigate', 'frigate'], ['cruiser', 'destroyer', 'destroyer', 'frigate', 'frigate'],
+             ['cruiser', 'frigate'], ['destroyer', 'frigate'], ['frigate', 'frigate'], ['frigate']];
+  const hullCost = t => t.reduce((a, h) => a + CLASSES[h].cost, 0);
+  const ok = T.filter(t => hullCost(t) <= budget * 0.65);
+  const pick = ok.length ? ok[Math.floor(Math.random() * Math.min(ok.length, 6))] : ['frigate'];
+  const fleet = pick.map(h => ({ hull: h, model: Math.random() < 0.5 ? 'A' : 'B', parts: [] }));
   let left = budget - fleetCost(fleet);
-  const fits = (d, k) => WEAPONS[k].cost <= left && designSpace(d) + WEAPONS[k].space <= CLASSES[d.hull].space && !(k === 'pd' && d.parts.includes('pd'));
-  for (const d of fleet) { const k = CLASSES[d.hull].space >= 7 && Math.random() < 0.6 ? 'fusion' : 'laser'; if (fits(d, k)) { d.parts.push(k); left -= WEAPONS[k].cost; } }
-  const pool = ['laser', 'laser', 'pulse', 'fusion', 'missile', 'missile', 'pd', 'armor', 'shieldb'];
-  for (let guard = 0; guard < 400; guard++) {
-    const d = fleet[guard % fleet.length], opts = pool.filter(k => fits(d, k));
-    if (!opts.length) { if (!fleet.some(f => pool.some(k => fits(f, k)))) break; continue; }
-    const k = opts[Math.floor(Math.random() * opts.length)]; d.parts.push(k); left -= WEAPONS[k].cost;
+  for (const d of fleet) { const k = CLASSES[d.hull].speed <= 3 && Math.random() < 0.6 ? 'fusion' : 'laser'; d.parts.push(k); left -= WEAPONS[k].cost; }
+  const pool = ['laser', 'laser', 'pulse', 'fusion', 'fusion', 'missile', 'missile', 'pd', 'armor', 'shieldb'];
+  for (let i = 0, guard = 0; guard < 600; guard++) {
+    const opts = pool.filter(k => WEAPONS[k].cost <= left);
+    if (!opts.length) break;
+    const d = fleet[i++ % fleet.length], k = opts[Math.floor(Math.random() * opts.length)];
+    if (k === 'pd' && d.parts.includes('pd')) continue;
+    d.parts.push(k); left -= WEAPONS[k].cost;
   }
   return fleet;
 }
@@ -1401,6 +1547,7 @@ async function activate(s) {
   if (s.isPlayer && !G.auto) await new Promise(res => { G.done = res; refresh(); });
   else { G.busy = true; refresh(); await aiActivate(s); G.busy = false; }
   G.active = null; G.done = null; G.hover = null;
+  H.actions.innerHTML = '';
 }
 function finishActivation() {
   if (!G.done || G.busy) return;
@@ -1425,7 +1572,7 @@ function checkEnd(quiet) {
 function startGame() {
   Sfx.init();
   closeEditor();
-  buildShips(playerFleet, randomFleet(BUDGET));
+  buildShips(playerFleet, randomFleet(fleetCost(playerFleet)));
   setupBattle();
   G.state = 'play'; G.round = 1; G.busy = false; G.run = (G.run || 0) + 1;
   $('menu').classList.add('hidden'); $('over').classList.add('hidden'); H.hud.classList.remove('hidden');
@@ -1497,7 +1644,7 @@ addEventListener('keydown', e => {
   if (e.code === 'Enter' && G.state === 'menu') return openEditor();
   if ((e.code === 'Enter' || e.code === 'KeyR') && G.state === 'over') return startGame();
   if (e.code === 'KeyM') { Sfx.toggle(); return; }
-  if (e.code === 'Enter' && G.state === 'editor') { if (fleetCost(playerFleet) <= BUDGET) startGame(); return; }
+  if (e.code === 'Enter' && G.state === 'editor') { if (!$('edLaunch').disabled) startGame(); return; }
   if (G.state !== 'play') return;
   const n = parseInt(e.key, 10);
   if (n >= 1 && n <= 9) selectWeapon(n - 1);
@@ -1572,7 +1719,7 @@ function refresh() {
   const hs = G.hover && shipAt(G.hover);
   if (hs && hs !== shown) { H.hCard.innerHTML = cardHTML(hs); H.hCard.className = 'panel card' + (hs.isPlayer ? '' : ' enemy'); } else H.hCard.className = 'panel card hidden';
 
-  for (const b of H.actions.querySelectorAll('button')) {
+  if (s) for (const b of H.actions.querySelectorAll('button')) {
     if (b.dataset.w !== undefined) {
       const w = s.weapons[+b.dataset.w];
       b.disabled = !ready || w.fired || w.ammo <= 0;
@@ -1674,12 +1821,13 @@ function partInfo(k) {
   return w.kind === 'beam' ? `rng ${w.range} · ${w.shots > 1 ? w.shots + '× ' : ''}${w.min}–${w.max} dmg${w.arc < 60 ? ' · narrow arc' : ''}`
     : w.kind === 'missile' ? `rng ${w.range} · ${w.dmg} dmg · ${w.ammo} shots` : w.kind === 'pd' ? 'shoots down missiles' : w.info;
 }
-function previewShip(hull) {
-  if (!ED.cache[hull]) {
-    const s = new Ship('player', { hull, parts: [] }, 7 + Object.keys(CLASSES).indexOf(hull) * 13);
-    s.reset({ q: 0, r: 0 }, 4); s.marker.visible = false; s.root.visible = false; ED.cache[hull] = s;
+function previewShip(hull, model) {
+  const key = hull + model;
+  if (!ED.cache[key]) {
+    const s = new Ship('player', { hull, model, parts: [] }, 7 + Object.keys(CLASSES).indexOf(hull) * 13);
+    s.reset({ q: 0, r: 0 }, 4); s.marker.visible = false; s.root.visible = false; ED.cache[key] = s;
   }
-  return ED.cache[hull];
+  return ED.cache[key];
 }
 function edViewOffset() {
   // centre the 3D preview in the gap between the two editor panels
@@ -1687,7 +1835,7 @@ function edViewOffset() {
   else camera.clearViewOffset();
 }
 function showPreview() {
-  const s = previewShip(playerFleet[ED.sel].hull), first = !ED.ship;
+  const d = playerFleet[ED.sel], s = previewShip(d.hull, d.model || 'A'), first = !ED.ship;
   if (ED.ship && ED.ship !== s) ED.ship.root.visible = false;
   ED.ship = s; s.root.visible = true;
   const p = s.pos, r = 60 + 70 * s.sc;
@@ -1713,45 +1861,56 @@ function closeEditor() {
   if (ED.ship) { ED.ship.root.visible = false; ED.ship = null; }
 }
 function renderEditor() {
-  const f = playerFleet, d = f[ED.sel], cls = CLASSES[d.hull], used = designSpace(d), cost = fleetCost(f);
+  const f = playerFleet, d = f[ED.sel], cls = CLASSES[d.hull], cost = fleetCost(f), savedN = f.filter(x => x.saved).length;
   const n = k => d.parts.filter(x => x === k).length;
-  $('edCount').textContent = `${f.length} / ${MAX_SHIPS}`;
-  $('edBudget').innerHTML = `BUDGET <b class="${cost > BUDGET ? 'over' : ''}">${cost}</b> / ${BUDGET} BC`;
+  $('edCount').textContent = `${savedN} / ${f.length} SAVED`;
+  $('edBudget').innerHTML = `FLEET COST <b>${cost}</b> BC <small style="font:500 13px 'Rajdhani',sans-serif;letter-spacing:.04em;color:#b9d3e0">· enemy fleet will cost the same</small>`;
   $('edFleet').innerHTML = f.map((x, i) => `<div class="edrow${i === ED.sel ? ' sel' : ''}" data-i="${i}">
-      <span><b>${CLASSES[x.hull].name}</b><small>${x.parts.filter(isWeapon).length} weapons · space ${designSpace(x)}/${CLASSES[x.hull].space}</small></span>
-      <span class="cost">${designCost(x)}</span>${f.length > 1 ? `<button class="x" data-del="${i}" title="Remove ship">×</button>` : ''}</div>`).join('');
-  $('edAdd').disabled = f.length >= MAX_SHIPS || cost + CLASSES.frigate.cost + WEAPONS.laser.cost > BUDGET;
-  $('edTitle').innerHTML = `<span>${cls.name.toUpperCase()} ${ED.sel + 1}</span><span>${designCost(d)} BC</span>`;
-  $('edHulls').innerHTML = Object.values(CLASSES).map(c => `<button class="hull${c.key === d.hull ? ' on' : ''}" data-h="${c.key}"><b>${c.name}</b><small>${c.cost} BC · space ${c.space}<br>speed ${c.speed} · init ${c.init}</small></button>`).join('');
-  $('edSpace').innerHTML = `<div class="lbl"><span>SPACE USED</span><span>${used} / ${cls.space}</span></div><div class="bar"><i style="transform:scaleX(${Math.min(1, used / cls.space)})"></i></div>`;
+      <span><b>${i + 1}. ${CLASSES[x.hull].name}</b><small>${MODELS[x.model || 'A'].name} · ${x.parts.filter(isWeapon).length} weapons · ${designCost(x)} BC</small></span>
+      <em class="${x.saved ? 'ok' : 'todo'}">${x.saved ? '✓ SAVED' : '● EDIT'}</em>${f.length > 1 ? `<button class="x" data-del="${i}" title="Remove ship">×</button>` : ''}</div>`).join('');
+  $('edAdd').disabled = f.length >= MAX_SHIPS;
+  $('edTitle').innerHTML = `<span>SHIP ${ED.sel + 1} · ${cls.name.toUpperCase()}</span><span>${designCost(d)} BC</span>`;
+  $('edSave').disabled = !!d.saved;
+  $('edSave').textContent = d.saved ? '✓ CONFIGURATION SAVED' : 'SAVE SHIP CONFIGURATION';
+  $('edModels').innerHTML = Object.entries(MODELS).map(([k, m]) => `<button class="hull${(d.model || 'A') === k ? ' on' : ''}" data-m="${k}"><b>${m.name}</b><small>${m.info}</small></button>`).join('');
+  $('edHulls').innerHTML = Object.values(CLASSES).map(c => `<button class="hull${c.key === d.hull ? ' on' : ''}" data-h="${c.key}"><b>${c.name}</b><small>${c.cost} BC · speed ${c.speed}<br>armor ${c.armor} · shield ${c.shield}</small></button>`).join('');
   const sh = Math.round(cls.shield * (1 + 0.5 * n('shieldb'))), ar = Math.round(cls.armor * (1 + 0.5 * n('armor')));
   const fp = Math.round(d.parts.filter(isWeapon).reduce((a, k) => a + expDmg(WEAPONS[k], WEAPONS[k].kind === 'beam' ? beamChance(WEAPONS[k], 3) : 1), 0));
   $('edStats').innerHTML = `<div class="stats"><span>SPEED <b>${cls.speed}</b></span><span>INIT <b>${cls.init}</b></span><span>FIREPOWER <b>${fp}</b></span>
     <span>SHIELDS <b>${sh}</b>/side</span><span>ARMOR <b>${ar}</b></span><span>STRUCT <b>${cls.struct}</b></span></div>`;
-  $('edParts').innerHTML = d.parts.length ? d.parts.map((k, i) => `<div class="wrow"><span style="color:#fff">${WEAPONS[k].name}</span><span>${partInfo(k)} · ${WEAPONS[k].space} sp</span><button class="x" data-rm="${i}" title="Remove">×</button></div>`).join('')
+  const counts = {}; d.parts.forEach(k => counts[k] = (counts[k] || 0) + 1);
+  $('edParts').innerHTML = d.parts.length ? Object.entries(counts).map(([k, c]) => `<div class="wrow"><span style="color:#fff">${c > 1 ? c + '× ' : ''}${WEAPONS[k].name}</span><span>${partInfo(k)}</span><span style="white-space:nowrap"><button class="x" data-rm="${k}" title="Remove one">−</button><button class="x" data-add="${k}" title="Add one" style="color:#8dff7a">+</button></span></div>`).join('')
     : '<div class="empty">Nothing installed — this ship cannot fight yet.</div>';
   $('edCat').innerHTML = Object.keys(WEAPONS).map(k => {
-    const w = WEAPONS[k];
-    const why = used + w.space > cls.space ? 'no space' : cost + w.cost > BUDGET ? 'over budget' : k === 'pd' && d.parts.includes('pd') ? 'one per ship' : '';
-    return `<button class="part" data-add="${k}"${why ? ' disabled' : ''}><b>${w.name}</b><small>${partInfo(k)}</small><span>${w.space} space · ${w.cost} BC${why ? `<br><em>${why}</em>` : ''}</span></button>`;
+    const w = WEAPONS[k], why = k === 'pd' && d.parts.includes('pd') ? 'one per ship' : '';
+    return `<button class="part" data-add="${k}"${why ? ' disabled' : ''}><b>${w.name}</b><small>${partInfo(k)}</small><span>${w.cost} BC${why ? `<br><em>${why}</em>` : ''}</span></button>`;
   }).join('');
-  $('edLaunch').disabled = cost > BUDGET || f.every(x => !x.parts.some(isWeapon));
+  const left = f.length - savedN;
+  $('edLaunch').disabled = left > 0 || f.every(x => !x.parts.some(isWeapon));
+  $('edLaunchHint').textContent = left > 0 ? `Save ${left} more ship${left > 1 ? 's' : ''} to launch` : '';
   showPreview();
 }
 $('editor').addEventListener('click', e => {
-  const b = e.target.closest('[data-del],[data-h],[data-add],[data-rm],[data-i]');
+  const b = e.target.closest('[data-del],[data-h],[data-m],[data-add],[data-rm],[data-i]');
   if (!b || b.disabled) return;
   const f = playerFleet, d = f[ED.sel];
   if (b.dataset.del !== undefined) { f.splice(+b.dataset.del, 1); ED.sel = clamp(ED.sel, 0, f.length - 1); }
-  else if (b.dataset.h) { d.hull = b.dataset.h; while (designSpace(d) > CLASSES[d.hull].space) d.parts.pop(); }
-  else if (b.dataset.add) d.parts.push(b.dataset.add);
-  else if (b.dataset.rm !== undefined) d.parts.splice(+b.dataset.rm, 1);
+  else if (b.dataset.h) { d.hull = b.dataset.h; d.saved = false; }
+  else if (b.dataset.m) { d.model = b.dataset.m; d.saved = false; }
+  else if (b.dataset.add) { if (!(b.dataset.add === 'pd' && d.parts.includes('pd'))) d.parts.push(b.dataset.add); d.saved = false; }
+  else if (b.dataset.rm) { const i = d.parts.lastIndexOf(b.dataset.rm); if (i >= 0) d.parts.splice(i, 1); d.saved = false; }
   else if (b.dataset.i !== undefined) ED.sel = +b.dataset.i;
   Sfx.click(); saveFleet(); renderEditor();
 });
-$('edAdd').onclick = () => { playerFleet.push({ hull: 'frigate', parts: ['laser'] }); ED.sel = playerFleet.length - 1; saveFleet(); renderEditor(); };
+$('edSave').onclick = () => {
+  const f = playerFleet; f[ED.sel].saved = true;
+  const next = f.findIndex((x, i) => !x.saved && i > ED.sel), first = f.findIndex(x => !x.saved);
+  if (next >= 0) ED.sel = next; else if (first >= 0) ED.sel = first;
+  Sfx.shieldHit(); saveFleet(); renderEditor();
+};
+$('edAdd').onclick = () => { playerFleet.push({ hull: 'frigate', model: 'A', parts: ['laser'], saved: false }); ED.sel = playerFleet.length - 1; saveFleet(); renderEditor(); };
 $('edReset').onclick = () => { playerFleet = cloneFleet(DEFAULT_FLEET); ED.sel = 0; saveFleet(); renderEditor(); };
-$('edLaunch').onclick = () => { if (fleetCost(playerFleet) <= BUDGET) startGame(); };
+$('edLaunch').onclick = () => { if (!$('edLaunch').disabled) startGame(); };
 
 // ───────────────────────────── camera
 let camGoal = null;
@@ -1793,6 +1952,7 @@ addEventListener('resize', () => {
   updatePointScale();
 });
 if (QS.has('editor')) openEditor();
+if (QS.has('debug')) window.__gd = { G, ships: () => ships, refresh, finishActivation, playerFire, weaponCheck, foesOf, reachable, moveAlong: (s, n) => playerAct(() => moveAlong(s, pathTo(n))), hexKey: hkey };
 if (QS.has('start') || G.auto) { startGame(); camera.position.set(0, 1500, 1750); controls.target.set(0, 0, 250); camGoal = null; }
 
 const clock = new THREE.Clock();
