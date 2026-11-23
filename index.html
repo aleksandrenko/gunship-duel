@@ -22,7 +22,7 @@
   .card.enemy { color:var(--enemy); border-color:rgba(255,143,120,.35); }
   #aCard { left:20px; } #hCard { right:20px; }
   .arcs { width:96px; height:96px; }
-  .arcs text { font:700 11px 'Orbitron'; fill:#fff; text-anchor:middle; dominant-baseline:middle; }
+  .arcs text { font:700 11px 'Orbitron',sans-serif; fill:#fff; text-anchor:middle; dominant-baseline:middle; }
   .lbl { display:flex; justify-content:space-between; font-size:12px; letter-spacing:.16em; margin:4px 0 3px; }
   .bar { height:8px; background:rgba(255,255,255,.08); position:relative; overflow:hidden; }
   .bar i { position:absolute; inset:0; transform-origin:left center; background:currentColor; }
@@ -30,13 +30,13 @@
   .pip { display:inline-block; width:8px; height:12px; margin-left:3px; background:currentColor; vertical-align:-1px; }
   .pip.off { opacity:.15; }
   .wrow { display:flex; justify-content:space-between; gap:8px; padding:2px 0; border-top:1px solid rgba(255,255,255,.06); }
-  .wrow b { font:700 11px 'Orbitron'; letter-spacing:.1em; }
+  .wrow b { font:700 11px 'Orbitron',sans-serif; letter-spacing:.1em; }
   .wrow.off { opacity:.35; }
   .wrow span { color:#b9d3e0; }
-  #topbar { top:16px; left:50%; transform:translateX(-50%); font:800 13px 'Orbitron'; letter-spacing:.22em; padding:10px 22px; white-space:nowrap; text-align:center; }
+  #topbar { top:16px; left:50%; transform:translateX(-50%); font:800 13px 'Orbitron',sans-serif; letter-spacing:.22em; padding:10px 22px; white-space:nowrap; text-align:center; }
   #topbar b { color:#fff; }
   #queue { margin-top:8px; display:flex; gap:4px; justify-content:center; }
-  .chip { font:800 10px 'Orbitron'; letter-spacing:.08em; padding:3px 6px; border:1px solid currentColor; opacity:.55; }
+  .chip { font:800 10px 'Orbitron',sans-serif; letter-spacing:.08em; padding:3px 6px; border:1px solid currentColor; opacity:.55; }
   .chip.p { color:#59d8ff; } .chip.e { color:#ff8a5c; }
   .chip.now { opacity:1; background:currentColor; } .chip.now span { color:#001018; }
   .chip.done { opacity:.25; }
@@ -44,8 +44,8 @@
   .act { font:800 11px 'Orbitron',sans-serif; letter-spacing:.12em; color:var(--hud); background:rgba(8,18,28,.82); border:1px solid var(--hud-dim);
          padding:10px 12px 9px; cursor:pointer; min-width:86px; text-align:center; line-height:1.5;
          clip-path:polygon(0 0,calc(100% - 9px) 0,100% 9px,100% 100%,9px 100%,0 calc(100% - 9px)); }
-  .act small { display:block; font:500 12px 'Rajdhani'; letter-spacing:.04em; color:#b9d3e0; }
-  .act kbd { font:700 10px 'Orbitron'; color:#fff; opacity:.7; }
+  .act small { display:block; font:500 12px 'Rajdhani',sans-serif; letter-spacing:.04em; color:#b9d3e0; }
+  .act kbd { font:700 10px 'Orbitron',sans-serif; color:#fff; opacity:.7; }
   .act:hover:not(:disabled) { background:rgba(127,227,255,.18); }
   .act.on { background:var(--hud); color:#001018; } .act.on small { color:#001018; }
   .act:disabled { opacity:.3; cursor:default; }
@@ -54,9 +54,9 @@
   #log div { opacity:.92; } #log .e { color:var(--enemy); } #log .p { color:#a8f0ff; } #log .x { color:#fff; font-weight:700; }
   #tip { position:absolute; left:0; top:0; padding:8px 11px; font-size:14px; line-height:1.35; background:rgba(4,10,16,.9); border:1px solid var(--hud-dim); white-space:nowrap; transform:translate(16px,16px); }
   #tip b { color:#fff; } #tip .bad { color:var(--warn); }
-  #banner { position:absolute; left:50%; top:30%; transform:translate(-50%,-50%); font:800 clamp(22px,3.4vw,40px) 'Orbitron'; letter-spacing:.26em; color:#fff; opacity:0; transition:opacity .35s; text-shadow:0 0 24px rgba(127,227,255,.7); white-space:nowrap; }
+  #banner { position:absolute; left:50%; top:30%; transform:translate(-50%,-50%); font:800 clamp(22px,3.4vw,40px) 'Orbitron',sans-serif; letter-spacing:.26em; color:#fff; opacity:0; transition:opacity .35s; text-shadow:0 0 24px rgba(127,227,255,.7); white-space:nowrap; }
   #banner.enemy { text-shadow:0 0 24px rgba(255,90,60,.8); }
-  .float { position:absolute; font:800 18px 'Orbitron'; transform:translate(-50%,-50%); animation:rise 1.4s ease-out forwards; text-shadow:0 0 8px #000; }
+  .float { position:absolute; font:800 18px 'Orbitron',sans-serif; transform:translate(-50%,-50%); animation:rise 1.4s ease-out forwards; text-shadow:0 0 8px #000; }
   @keyframes rise { to { transform:translate(-50%,-170%); opacity:0; } }
   #hint { position:absolute; bottom:92px; left:50%; transform:translateX(-50%); font-size:14px; letter-spacing:.06em; color:#b9d3e0; white-space:nowrap; text-shadow:0 0 6px #000; }
   .overlay { position:fixed; inset:0; display:flex; align-items:center; padding:0 7vw; background:linear-gradient(90deg,rgba(0,0,0,.82),rgba(0,0,0,.25) 60%,transparent); }
@@ -65,10 +65,35 @@
   .mcard h1 { font:800 clamp(34px,5vw,60px)/1 'Orbitron',sans-serif; margin:0 0 12px; color:#fff; letter-spacing:.06em; text-shadow:0 0 30px rgba(127,227,255,.45); }
   .mcard p { font-size:18px; color:#b9d3e0; line-height:1.4; margin:0 0 16px; }
   .keys { display:grid; grid-template-columns:auto 1fr; gap:6px 14px; font-size:15px; color:#cfe6f0; margin-bottom:24px; }
-  .keys kbd { font:700 11px 'Orbitron'; color:#fff; border:1px solid var(--hud-dim); padding:1px 6px; white-space:nowrap; }
+  .keys kbd { font:700 11px 'Orbitron',sans-serif; color:#fff; border:1px solid var(--hud-dim); padding:1px 6px; white-space:nowrap; }
   .big { font:800 15px 'Orbitron',sans-serif; letter-spacing:.2em; color:#001018; background:var(--hud); border:0; padding:14px 34px; cursor:pointer;
          clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px)); }
   .big:hover { background:#fff; }
+  #editor { position:fixed; inset:0; pointer-events:none; }
+  #editor .panel, #editor .edfoot { pointer-events:auto; }
+  #edLeft { left:20px; top:20px; width:270px; max-height:calc(100vh - 160px); overflow:auto; }
+  #edRight { right:20px; top:20px; width:480px; max-height:calc(100vh - 160px); overflow:auto; }
+  .edfoot { position:absolute; left:20px; right:20px; bottom:20px; display:flex; gap:14px; align-items:center; justify-content:center; }
+  .edfoot button { white-space:nowrap; }
+  #edBudget { font:800 14px 'Orbitron',sans-serif; letter-spacing:.18em; padding:12px 18px; white-space:nowrap; } #edBudget b { color:#fff; } #edBudget b.over { color:var(--warn); }
+  .edrow { display:flex; align-items:center; gap:8px; padding:8px 10px; margin-bottom:6px; border:1px solid rgba(127,227,255,.18); cursor:pointer; }
+  .edrow.sel { background:rgba(127,227,255,.14); border-color:var(--hud); }
+  .edrow > span:first-child { flex:1; } .edrow b { display:block; color:#fff; font:700 13px 'Orbitron',sans-serif; letter-spacing:.08em; } .edrow small { color:#b9d3e0; }
+  .edrow .cost { font:700 12px 'Orbitron',sans-serif; }
+  button.x { background:none; border:0; color:var(--warn); font-size:18px; cursor:pointer; padding:0 4px; line-height:1; }
+  #edHulls { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; margin-bottom:10px; }
+  .hull, .part { font-family:'Rajdhani',sans-serif; text-align:left; background:rgba(8,18,28,.7); border:1px solid rgba(127,227,255,.22); color:var(--hud); padding:8px; cursor:pointer; }
+  .hull b, .part b { display:block; font:700 12px 'Orbitron',sans-serif; letter-spacing:.05em; color:#fff; } .hull small, .part small { color:#b9d3e0; font-size:12px; line-height:1.3; }
+  .hull.on { border-color:var(--hud); background:rgba(127,227,255,.18); }
+  .part { display:grid; grid-template-columns:1fr auto; gap:2px 10px; width:100%; margin-bottom:5px; }
+  .part span { grid-row:1 / 3; grid-column:2; align-self:center; font-size:12px; text-align:right; } .part em { color:var(--warn); font-style:normal; }
+  .part:disabled { opacity:.38; cursor:default; }
+  .part:hover:not(:disabled), .hull:hover { background:rgba(127,227,255,.14); }
+  .stats { display:grid; grid-template-columns:repeat(3,1fr); gap:4px 10px; font-size:12px; letter-spacing:.12em; margin:10px 0 0; } .stats b { color:#fff; font:700 13px 'Orbitron',sans-serif; }
+  .edsec { font:800 11px 'Orbitron',sans-serif; letter-spacing:.2em; margin:14px 0 6px; opacity:.8; }
+  .empty, .edhint { color:#8fb0bf; font-size:13px; padding:4px 0; }
+  #edParts .wrow { align-items:center; }
+  #edSpace .bar { color:var(--hud); }
   @media (max-width:1150px) { .card { width:250px; grid-template-columns:76px 1fr; } .arcs { width:76px; height:76px; } #log { display:none; } }
 </style>
 </head>
@@ -90,7 +115,7 @@
 <div id="menu" class="overlay">
   <div class="mcard">
     <h1>GUNSHIP<br>DUEL</h1>
-    <p>Fleet battle in orbit. Four ships a side — frigate, destroyer, cruiser, battleship — each with its own speed, armor and weapons. Ships act one at a time in initiative order.</p>
+    <p>Fleet battle in orbit. Design your fleet — frigates, destroyers, cruisers, battleships — fit weapons into each hull, then fight a random enemy fleet of the same cost. Ships act one at a time in initiative order.</p>
     <div class="keys">
       <kbd>CLICK HEX</kbd><span>Move the active ship (hover shows the path and cost)</span>
       <kbd>Q / E</kbd><span>Turn one side (1 MP)</span>
@@ -99,8 +124,19 @@
       <kbd>WASD · RIGHT-DRAG · WHEEL</kbd><span>Pan · rotate · zoom the view</span>
     </div>
     <p style="font-size:15px">Shields cover four sides. Beams need line of sight and an arc; missiles fly over asteroids, take a round or two to arrive, and point defense can shoot them down.</p>
-    <button class="big" id="launchBtn">ENGAGE</button>
+    <button class="big" id="launchBtn">DESIGN FLEET</button>
   </div>
+</div>
+
+<div id="editor" class="hidden">
+  <div class="panel" id="edLeft"><h3><span>YOUR FLEET</span><span id="edCount"></span></h3><div id="edFleet"></div>
+    <button class="act" id="edAdd" style="width:100%">+ ADD SHIP</button>
+    <p class="edhint">Up to 6 ships. Click a ship to refit it. The enemy brings a random fleet built on the same budget.</p></div>
+  <div class="panel" id="edRight"><h3 id="edTitle"></h3>
+    <div class="edsec">HULL</div><div id="edHulls"></div><div id="edSpace"></div><div id="edStats"></div>
+    <div class="edsec">INSTALLED</div><div id="edParts"></div>
+    <div class="edsec">COMPONENTS — CLICK TO INSTALL</div><div id="edCat"></div></div>
+  <div class="edfoot"><button class="act" id="edReset">DEFAULT FLEET</button><div class="panel" id="edBudget" style="position:static"></div><button class="big" id="edLaunch">LAUNCH BATTLE</button></div>
 </div>
 
 <div id="over" class="overlay center hidden">
@@ -108,6 +144,7 @@
     <h1 id="overTitle">VICTORY</h1>
     <p id="overText"></p>
     <button class="big" id="againBtn">FIGHT AGAIN</button>
+    <button class="big" id="editBtn" style="margin-left:10px;background:var(--amber)">EDIT FLEET</button>
   </div>
 </div>
 
@@ -773,7 +810,7 @@ const tileGeo = new THREE.CircleGeometry(HS * 0.92, 6); tileGeo.rotateX(-Math.PI
 const tiles = new THREE.InstancedMesh(tileGeo, new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide }), HEXES.length);
 { const m = new THREE.Matrix4(); HEXES.forEach((h, i) => { tiles.setMatrixAt(i, m.makeTranslation(hexToWorld(h).setY(-0.5))); tiles.setColorAt(i, C(0, 0, 0)); }); }
 board.add(tiles);
-const TC = { base: C(0.008, 0.02, 0.035), path: C(0.05, 0.2, 0.32), target: C(0.55, 0.12, 0.05), rock: C(0.04, 0.03, 0.02) };
+const TC = { range: C(0.07, 0.03, 0.008), rangeSel: C(0.17, 0.075, 0.015), base: C(0.008, 0.02, 0.035), path: C(0.05, 0.2, 0.32), target: C(0.55, 0.12, 0.05), rock: C(0.04, 0.03, 0.02) };
 const hoverRing = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(hexCorners(V3(), HS * 0.94, 0)), new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.7, depthWrite: false }));
 hoverRing.position.y = 0.8; hoverRing.visible = false; board.add(hoverRing);
 
@@ -811,12 +848,18 @@ const WEAPONS = {
   fusion:  { key: 'fusion', name: 'Fusion Beam', kind: 'beam', range: 5, min: 14, max: 24, shots: 1, arc: 46, acc: 0.9, fall: 0.08, width: 2.3, color: 0xd070ff },
   missile: { key: 'missile', name: 'Missile', kind: 'missile', range: 18, dmg: 18, ammo: 4, speed: 7 },
   pd:      { key: 'pd', name: 'Point Defense', kind: 'pd', range: 2, chance: 0.45, shots: 2 },
+  armor:   { key: 'armor', name: 'Heavy Armor', kind: 'armor', info: '+50% armor' },
+  shieldb: { key: 'shieldb', name: 'Shield Booster', kind: 'shield', info: '+50% shields' },
 };
+const PART_SPACE = { laser: 1, pulse: 2, fusion: 3, missile: 2, pd: 1, armor: 2, shieldb: 2 };
+const PART_COST = { laser: 3, pulse: 4, fusion: 7, missile: 5, pd: 3, armor: 4, shieldb: 5 };
+for (const k in WEAPONS) { WEAPONS[k].space = PART_SPACE[k]; WEAPONS[k].cost = PART_COST[k]; }
+const isWeapon = k => ['beam', 'missile', 'pd'].includes(WEAPONS[k].kind);
 const CLASSES = {
-  frigate:    { key: 'frigate', name: 'Frigate', tag: 'FRG', sc: 0.6, speed: 5, init: 4, armor: 24, struct: 18, shield: 10, w: ['laser', 'pulse'] },
-  destroyer:  { key: 'destroyer', name: 'Destroyer', tag: 'DST', sc: 0.78, speed: 4, init: 3, armor: 40, struct: 30, shield: 16, w: ['laser', 'laser', 'missile'] },
-  cruiser:    { key: 'cruiser', name: 'Cruiser', tag: 'CRU', sc: 0.95, speed: 3, init: 2, armor: 65, struct: 45, shield: 22, w: ['fusion', 'laser', 'missile', 'pd'] },
-  battleship: { key: 'battleship', name: 'Battleship', tag: 'BTL', sc: 1.2, speed: 2, init: 1, armor: 110, struct: 80, shield: 30, w: ['fusion', 'fusion', 'pulse', 'missile', 'pd'] },
+  frigate:    { key: 'frigate', name: 'Frigate', tag: 'FRG', space: 4, cost: 10, sc: 0.6, speed: 5, init: 4, armor: 24, struct: 18, shield: 10, w: ['laser', 'pulse'] },
+  destroyer:  { key: 'destroyer', name: 'Destroyer', tag: 'DST', space: 7, cost: 18, sc: 0.78, speed: 4, init: 3, armor: 40, struct: 30, shield: 16, w: ['laser', 'laser', 'missile'] },
+  cruiser:    { key: 'cruiser', name: 'Cruiser', tag: 'CRU', space: 11, cost: 28, sc: 0.95, speed: 3, init: 2, armor: 65, struct: 45, shield: 22, w: ['fusion', 'laser', 'missile', 'pd'] },
+  battleship: { key: 'battleship', name: 'Battleship', tag: 'BTL', space: 16, cost: 42, sc: 1.2, speed: 2, init: 1, armor: 110, struct: 80, shield: 30, w: ['fusion', 'fusion', 'pulse', 'missile', 'pd'] },
 };
 const SIDES = {
   player: { label: 'Your', hull: 0x9aa6b2, accent: 0xd49a52, glow: 0xffa04a, engine: 0x6cc6ff, shield: 0x4fc8ff, laser: 0x58ff9a, rocket: 0xc8ccd0, marker: 0x3fb8ff },
@@ -845,10 +888,11 @@ const SHIELD_FS = `uniform vec3 uColor; uniform float uTime; uniform float uStre
 const ARC_NAMES = ['FRONT', 'RIGHT', 'REAR', 'LEFT'];
 
 class Ship {
-  constructor(side, clsKey, seed) {
-    const S = SIDES[side], cls = CLASSES[clsKey];
+  constructor(side, design, seed, suffix = '') {
+    const clsKey = design.hull, S = SIDES[side], cls = CLASSES[clsKey];
+    this.design = { hull: design.hull, parts: design.parts.slice() };
     this.side = side; this.cls = cls; this.sc = cls.sc; this.isPlayer = side === 'player';
-    this.name = `${S.label} ${cls.name}`; this.o = S;
+    this.name = `${S.label} ${cls.name}${suffix}`; this.o = S;
     this.mats = makeMaterials(S);
     this.model = shipModel({ ...S, seed, cls: clsKey, mats: this.mats });
     this.model.group.scale.setScalar(cls.sc);
@@ -896,13 +940,19 @@ class Ship {
     this.root.position.copy(hexToWorld(h)).setY(SHIP_Y);
     this.root.rotation.set(0, this.yaw, 0);
     this.root.visible = true;
-    this.maxShield = c.shield; this.shields = [c.shield, c.shield, c.shield, c.shield];
-    this.maxArmor = c.armor; this.armor = c.armor; this.maxStruct = c.struct; this.struct = c.struct;
-    this.weapons = c.w.map(k => ({ def: WEAPONS[k], fired: false, ammo: WEAPONS[k].ammo ?? Infinity }));
+    const parts = this.design.parts, n = k => parts.filter(x => x === k).length;
+    this.maxShield = Math.round(c.shield * (1 + 0.5 * n('shieldb'))); this.shields = [0, 0, 0, 0].map(() => this.maxShield);
+    this.maxArmor = Math.round(c.armor * (1 + 0.5 * n('armor'))); this.armor = this.maxArmor; this.maxStruct = c.struct; this.struct = c.struct;
+    this.weapons = parts.filter(isWeapon).map(k => ({ def: WEAPONS[k], fired: false, ammo: WEAPONS[k].ammo ?? Infinity }));
+    this.extras = parts.filter(k => !isWeapon(k));
     this.alive = true; this.enginesHit = false; this.mp = this.maxMp(); this.pdShots = 0; this.acted = false;
     this.shieldMat.uniforms.uHits.value.forEach(x => x.w = -99);
     this.model.group.rotation.set(0, 0, 0);
     this.root.updateMatrixWorld(); this.inv.copy(this.root.matrixWorld).invert();
+  }
+  dispose() {
+    scene.remove(this.root);
+    this.root.traverse(o => { if (o.geometry && o.geometry !== SPHERE && o.geometry !== CONE) o.geometry.dispose(); });
   }
   maxMp() { return this.enginesHit ? Math.max(1, this.cls.speed - 1) : this.cls.speed; }
   get pos() { return this.root.position; }
@@ -991,9 +1041,43 @@ class Ship {
 }
 
 const debris = [];
-const FLEET = ['battleship', 'cruiser', 'destroyer', 'frigate'];
-const ships = [];
-FLEET.forEach((k, i) => { ships.push(new Ship('player', k, 7 + i * 13)); ships.push(new Ship('enemy', k, 99 + i * 17)); });
+const BUDGET = 170, MAX_SHIPS = 6;
+const DEFAULT_FLEET = Object.keys(CLASSES).reverse().map(k => ({ hull: k, parts: CLASSES[k].w.slice() }));
+const cloneFleet = f => f.map(d => ({ hull: d.hull, parts: d.parts.slice() }));
+const designSpace = d => d.parts.reduce((a, k) => a + WEAPONS[k].space, 0);
+const designCost = d => CLASSES[d.hull].cost + d.parts.reduce((a, k) => a + WEAPONS[k].cost, 0);
+const fleetCost = f => f.reduce((a, d) => a + designCost(d), 0);
+function loadFleet() {
+  try { const f = JSON.parse(localStorage.getItem('gunship-duel-fleet')); if (Array.isArray(f) && f.length && f.every(d => CLASSES[d.hull] && d.parts.every(k => WEAPONS[k]))) return f; } catch (e) {}
+  return null;
+}
+function saveFleet() { try { localStorage.setItem('gunship-duel-fleet', JSON.stringify(playerFleet)); } catch (e) {} }
+let playerFleet = loadFleet() || cloneFleet(DEFAULT_FLEET);
+function randomFleet(budget) {
+  const T = [['battleship', 'cruiser', 'destroyer', 'frigate'], ['cruiser', 'cruiser', 'destroyer', 'destroyer'], ['battleship', 'battleship'],
+             ['destroyer', 'destroyer', 'destroyer', 'frigate', 'frigate'], ['battleship', 'frigate', 'frigate', 'frigate'], ['cruiser', 'destroyer', 'destroyer', 'frigate', 'frigate']];
+  const fleet = T[Math.floor(Math.random() * T.length)].map(h => ({ hull: h, parts: [] }));
+  let left = budget - fleetCost(fleet);
+  const fits = (d, k) => WEAPONS[k].cost <= left && designSpace(d) + WEAPONS[k].space <= CLASSES[d.hull].space && !(k === 'pd' && d.parts.includes('pd'));
+  for (const d of fleet) { const k = CLASSES[d.hull].space >= 7 && Math.random() < 0.6 ? 'fusion' : 'laser'; if (fits(d, k)) { d.parts.push(k); left -= WEAPONS[k].cost; } }
+  const pool = ['laser', 'laser', 'pulse', 'fusion', 'missile', 'missile', 'pd', 'armor', 'shieldb'];
+  for (let guard = 0; guard < 400; guard++) {
+    const d = fleet[guard % fleet.length], opts = pool.filter(k => fits(d, k));
+    if (!opts.length) { if (!fleet.some(f => pool.some(k => fits(f, k)))) break; continue; }
+    const k = opts[Math.floor(Math.random() * opts.length)]; d.parts.push(k); left -= WEAPONS[k].cost;
+  }
+  return fleet;
+}
+let ships = [];
+const ROMAN = ['', ' II', ' III', ' IV', ' V', ' VI'];
+function buildShips(pf, ef) {
+  for (const s of ships) s.dispose();
+  ships = [];
+  for (const [side, fleet, seed] of [['player', pf, 7], ['enemy', ef, 99]]) {
+    const seen = {};
+    fleet.forEach((d, i) => { seen[d.hull] = (seen[d.hull] || 0) + 1; ships.push(new Ship(side, d, seed + i * 13, ROMAN[seen[d.hull] - 1])); });
+  }
+}
 const sideShips = side => ships.filter(s => s.side === side && s.alive);
 const foesOf = s => sideShips(s.side === 'player' ? 'enemy' : 'player');
 const shipAt = h => ships.find(s => s.alive && s.h.q === h.q && s.h.r === h.r);
@@ -1257,17 +1341,22 @@ async function aiActivate(s) {
 // ───────────────────────────── game flow
 const G = { state: 'menu', round: 1, active: null, busy: false, sel: null, hover: null, order: [], auto: QS.has('auto') || INSTANT };
 let shake = 0;
-function startPositions() {
-  const spots = (z, facing) => [[0, z], [-260, z + Math.sign(z) * 40], [260, z + Math.sign(z) * 40], [-520, z - Math.sign(z) * 60]].map(([x, zz]) => ({ h: worldToHex(x, zz), facing }));
-  return { player: spots(820, 2), enemy: spots(-820, 5) };
+function startPositions(n, side) {
+  const z = side === 'player' ? 720 : -720, facing = side === 'player' ? 2 : 5, cols = [0, -1, 1, -2, 2, -3], used = new Set();
+  return Array.from({ length: n }, (_, i) => {
+    let h = worldToHex(cols[i] * 220, z);
+    if (!onBoard(h) || used.has(hkey(h))) h = HEXES.filter(c => !used.has(hkey(c))).sort((a, b) => hexDist(a, h) - hexDist(b, h))[0];
+    used.add(hkey(h)); return { h, facing };
+  });
 }
 function setupBattle() {
   for (const d of debris) scene.remove(d.m);
   debris.length = 0;
   for (const m of missiles.slice()) removeMissile(m, false);
-  const sp = startPositions();
-  ships.filter(s => s.side === 'player').forEach((s, i) => s.reset(sp.player[i].h, sp.player[i].facing));
-  ships.filter(s => s.side === 'enemy').forEach((s, i) => s.reset(sp.enemy[i].h, sp.enemy[i].facing));
+  for (const side of ['player', 'enemy']) {
+    const list = ships.filter(s => s.side === side), sp = startPositions(list.length, side);
+    list.forEach((s, i) => s.reset(sp[i].h, sp[i].facing));
+  }
   placeAsteroids(ships.map(s => s.h));
 }
 function initiativeOrder() {
@@ -1335,13 +1424,16 @@ function checkEnd(quiet) {
 }
 function startGame() {
   Sfx.init();
+  closeEditor();
+  buildShips(playerFleet, randomFleet(BUDGET));
   setupBattle();
   G.state = 'play'; G.round = 1; G.busy = false; G.run = (G.run || 0) + 1;
   $('menu').classList.add('hidden'); $('over').classList.add('hidden'); H.hud.classList.remove('hidden');
   H.log.innerHTML = '';
   controls.autoRotate = false;
   camGoal = { pos: V3(0, 1500, 1750), target: V3(0, 0, 250), t: 0 };
-  log('Battle begins. Four ships a side.', 'x');
+  log(`Battle begins: ${sideShips('player').length} vs ${sideShips('enemy').length} ships.`, 'x');
+  log(`Enemy fleet: ${sideShips('enemy').map(x => x.cls.name).join(', ')}`, 'e');
   battleLoop();
 }
 const playerReady = () => G.state === 'play' && G.active && G.active.isPlayer && !G.busy && !G.auto && !!G.done;
@@ -1402,9 +1494,10 @@ function selectWeapon(i) {
 const keys = new Set();
 addEventListener('keydown', e => {
   keys.add(e.code);
-  if (e.code === 'Enter' && G.state === 'menu') return startGame();
+  if (e.code === 'Enter' && G.state === 'menu') return openEditor();
   if ((e.code === 'Enter' || e.code === 'KeyR') && G.state === 'over') return startGame();
   if (e.code === 'KeyM') { Sfx.toggle(); return; }
+  if (e.code === 'Enter' && G.state === 'editor') { if (fleetCost(playerFleet) <= BUDGET) startGame(); return; }
   if (G.state !== 'play') return;
   const n = parseInt(e.key, 10);
   if (n >= 1 && n <= 9) selectWeapon(n - 1);
@@ -1420,8 +1513,9 @@ addEventListener('blur', () => keys.clear());
 // ───────────────────────────── HUD
 const $ = id => document.getElementById(id);
 const H = { hud: $('hud'), log: $('log'), tip: $('tip'), banner: $('banner'), hint: $('hint'), floaters: $('floaters'), round: $('round'), turnTxt: $('turnTxt'), queue: $('queue'), aCard: $('aCard'), hCard: $('hCard'), actions: $('actions') };
-$('launchBtn').onclick = startGame;
+$('launchBtn').onclick = openEditor;
 $('againBtn').onclick = startGame;
+$('editBtn').onclick = openEditor;
 
 function arcPath(a0, a1, r) {
   const p = a => [r * Math.sin(a * Math.PI / 180), -r * Math.cos(a * Math.PI / 180)];
@@ -1450,6 +1544,7 @@ function cardHTML(s) {
       <div class="lbl"><span>ARMOR</span><span>${Math.round(s.armor)}</span></div><div class="bar armor"><i style="transform:scaleX(${s.armor / s.maxArmor})"></i></div>
       <div class="lbl"><span>STRUCTURE</span><span>${Math.round(s.struct)}</span></div><div class="bar" style="color:${sColor}"><i style="transform:scaleX(${s.struct / s.maxStruct})"></i></div>
       <div class="lbl" style="margin-top:8px"><span>SPEED ${s.maxMp()}</span><span>INIT ${s.cls.init}</span></div>
+      ${s.extras.length ? `<div style="font-size:12px;color:#b9d3e0">${s.extras.map(k => WEAPONS[k].name).join(' · ')}</div>` : ''}
       ${s.enginesHit ? '<div style="color:#ff5a3c;font-size:12px;letter-spacing:.12em">ENGINES DAMAGED</div>' : ''}
     </div>
     <div class="wl">${wl}</div>`;
@@ -1459,7 +1554,10 @@ function buildActions() {
   H.actions.innerHTML = '';
   if (!s || !s.isPlayer || G.auto) return;
   const mk = (html, fn, cls = '') => { const b = document.createElement('button'); b.className = 'act ' + cls; b.innerHTML = html; b.onclick = fn; H.actions.appendChild(b); return b; };
-  s.weapons.forEach((w, i) => { if (w.def.kind !== 'pd') { const b = mk(`<kbd>${i + 1}</kbd> ${w.def.name.toUpperCase()}<small></small>`, () => selectWeapon(i)); b.dataset.w = i; } });
+  s.weapons.forEach((w, i) => { if (w.def.kind !== 'pd') {
+    const b = mk(`<kbd>${i + 1}</kbd> ${w.def.name.toUpperCase()}<small></small>`, () => selectWeapon(i)); b.dataset.w = i;
+    b.onmouseenter = () => { G.preview = i; refresh(); }; b.onmouseleave = () => { G.preview = null; refresh(); };
+  } });
   mk('<kbd>Q</kbd> TURN ◀<small>1 MP</small>', () => rotatePlayer(1)).dataset.turn = 1;
   mk('<kbd>E</kbd> TURN ▶<small>1 MP</small>', () => rotatePlayer(-1)).dataset.turn = 1;
   mk('<kbd>⏎</kbd> DONE<small>next ship</small>', finishActivation, 'end').dataset.end = 1;
@@ -1488,6 +1586,21 @@ function refresh() {
   for (const k of asteroids.keys()) col[HEX_IDX.get(k)] = TC.rock;
   hoverRing.visible = false;
   if (ready) {
+    // weapon reach: the picked (or hovered) weapon strongly, otherwise all ready beams faintly
+    const sel = G.sel ?? G.preview;
+    const reachList = sel != null ? [s.weapons[sel]].filter(Boolean) : s.weapons.filter(w => w.def.kind === 'beam' && !w.fired);
+    HEXES.forEach((h, i) => {
+      if (col[i] !== TC.base) return;
+      const d = hexDist(s.h, h);
+      if (d === 0) return;
+      for (const w of reachList) {
+        const def = w.def;
+        if (def.kind === 'pd' || d > def.range) continue;
+        if (def.kind === 'beam' && Math.abs(localAngle(s.h, s.facing, h).deg) > def.arc) continue;
+        if (sel != null && def.kind === 'beam' && !lineOfSight(s.h, h)) continue;
+        col[i] = sel != null ? TC.rangeSel : TC.range; break;
+      }
+    });
     for (const t of foesOf(s)) {
       const list = G.sel !== null ? [s.weapons[G.sel]] : s.weapons;
       if (list.some(w => weaponCheck(s, w, t).ok)) col[HEX_IDX.get(hkey(t.h))] = TC.target;
@@ -1554,6 +1667,92 @@ function floater(p, text, color) {
   H.floaters.appendChild(d); setTimeout(() => d.remove(), 1400);
 }
 
+// ───────────────────────────── fleet editor
+const ED = { sel: 0, ship: null, cache: {} };
+function partInfo(k) {
+  const w = WEAPONS[k];
+  return w.kind === 'beam' ? `rng ${w.range} · ${w.shots > 1 ? w.shots + '× ' : ''}${w.min}–${w.max} dmg${w.arc < 60 ? ' · narrow arc' : ''}`
+    : w.kind === 'missile' ? `rng ${w.range} · ${w.dmg} dmg · ${w.ammo} shots` : w.kind === 'pd' ? 'shoots down missiles' : w.info;
+}
+function previewShip(hull) {
+  if (!ED.cache[hull]) {
+    const s = new Ship('player', { hull, parts: [] }, 7 + Object.keys(CLASSES).indexOf(hull) * 13);
+    s.reset({ q: 0, r: 0 }, 4); s.marker.visible = false; s.root.visible = false; ED.cache[hull] = s;
+  }
+  return ED.cache[hull];
+}
+function edViewOffset() {
+  // centre the 3D preview in the gap between the two editor panels
+  if (G.state === 'editor') camera.setViewOffset(innerWidth, innerHeight, (500 - 290) / 2, 0, innerWidth, innerHeight);
+  else camera.clearViewOffset();
+}
+function showPreview() {
+  const s = previewShip(playerFleet[ED.sel].hull), first = !ED.ship;
+  if (ED.ship && ED.ship !== s) ED.ship.root.visible = false;
+  ED.ship = s; s.root.visible = true;
+  const p = s.pos, r = 60 + 70 * s.sc;
+  const pos = V3(p.x - r * 0.9, p.y + r * 0.45, p.z + r * 0.75);
+  if (first) { camera.position.copy(pos); controls.target.copy(p); camGoal = null; }
+  else camGoal = { pos, target: p.clone(), t: 0 };
+}
+function openEditor() {
+  Sfx.init();
+  G.state = 'editor'; G.run = (G.run || 0) + 1; G.active = null; G.done = null;
+  for (const m of missiles.slice()) removeMissile(m, false);
+  for (const s of ships) s.root.visible = false;
+  board.visible = false;
+  $('menu').classList.add('hidden'); $('over').classList.add('hidden'); H.hud.classList.add('hidden'); $('editor').classList.remove('hidden');
+  ED.sel = clamp(ED.sel, 0, playerFleet.length - 1);
+  controls.autoRotate = true; controls.autoRotateSpeed = 0.7;
+  edViewOffset();
+  renderEditor();
+}
+function closeEditor() {
+  $('editor').classList.add('hidden'); board.visible = true;
+  camera.clearViewOffset();
+  if (ED.ship) { ED.ship.root.visible = false; ED.ship = null; }
+}
+function renderEditor() {
+  const f = playerFleet, d = f[ED.sel], cls = CLASSES[d.hull], used = designSpace(d), cost = fleetCost(f);
+  const n = k => d.parts.filter(x => x === k).length;
+  $('edCount').textContent = `${f.length} / ${MAX_SHIPS}`;
+  $('edBudget').innerHTML = `BUDGET <b class="${cost > BUDGET ? 'over' : ''}">${cost}</b> / ${BUDGET} BC`;
+  $('edFleet').innerHTML = f.map((x, i) => `<div class="edrow${i === ED.sel ? ' sel' : ''}" data-i="${i}">
+      <span><b>${CLASSES[x.hull].name}</b><small>${x.parts.filter(isWeapon).length} weapons · space ${designSpace(x)}/${CLASSES[x.hull].space}</small></span>
+      <span class="cost">${designCost(x)}</span>${f.length > 1 ? `<button class="x" data-del="${i}" title="Remove ship">×</button>` : ''}</div>`).join('');
+  $('edAdd').disabled = f.length >= MAX_SHIPS || cost + CLASSES.frigate.cost + WEAPONS.laser.cost > BUDGET;
+  $('edTitle').innerHTML = `<span>${cls.name.toUpperCase()} ${ED.sel + 1}</span><span>${designCost(d)} BC</span>`;
+  $('edHulls').innerHTML = Object.values(CLASSES).map(c => `<button class="hull${c.key === d.hull ? ' on' : ''}" data-h="${c.key}"><b>${c.name}</b><small>${c.cost} BC · space ${c.space}<br>speed ${c.speed} · init ${c.init}</small></button>`).join('');
+  $('edSpace').innerHTML = `<div class="lbl"><span>SPACE USED</span><span>${used} / ${cls.space}</span></div><div class="bar"><i style="transform:scaleX(${Math.min(1, used / cls.space)})"></i></div>`;
+  const sh = Math.round(cls.shield * (1 + 0.5 * n('shieldb'))), ar = Math.round(cls.armor * (1 + 0.5 * n('armor')));
+  const fp = Math.round(d.parts.filter(isWeapon).reduce((a, k) => a + expDmg(WEAPONS[k], WEAPONS[k].kind === 'beam' ? beamChance(WEAPONS[k], 3) : 1), 0));
+  $('edStats').innerHTML = `<div class="stats"><span>SPEED <b>${cls.speed}</b></span><span>INIT <b>${cls.init}</b></span><span>FIREPOWER <b>${fp}</b></span>
+    <span>SHIELDS <b>${sh}</b>/side</span><span>ARMOR <b>${ar}</b></span><span>STRUCT <b>${cls.struct}</b></span></div>`;
+  $('edParts').innerHTML = d.parts.length ? d.parts.map((k, i) => `<div class="wrow"><span style="color:#fff">${WEAPONS[k].name}</span><span>${partInfo(k)} · ${WEAPONS[k].space} sp</span><button class="x" data-rm="${i}" title="Remove">×</button></div>`).join('')
+    : '<div class="empty">Nothing installed — this ship cannot fight yet.</div>';
+  $('edCat').innerHTML = Object.keys(WEAPONS).map(k => {
+    const w = WEAPONS[k];
+    const why = used + w.space > cls.space ? 'no space' : cost + w.cost > BUDGET ? 'over budget' : k === 'pd' && d.parts.includes('pd') ? 'one per ship' : '';
+    return `<button class="part" data-add="${k}"${why ? ' disabled' : ''}><b>${w.name}</b><small>${partInfo(k)}</small><span>${w.space} space · ${w.cost} BC${why ? `<br><em>${why}</em>` : ''}</span></button>`;
+  }).join('');
+  $('edLaunch').disabled = cost > BUDGET || f.every(x => !x.parts.some(isWeapon));
+  showPreview();
+}
+$('editor').addEventListener('click', e => {
+  const b = e.target.closest('[data-del],[data-h],[data-add],[data-rm],[data-i]');
+  if (!b || b.disabled) return;
+  const f = playerFleet, d = f[ED.sel];
+  if (b.dataset.del !== undefined) { f.splice(+b.dataset.del, 1); ED.sel = clamp(ED.sel, 0, f.length - 1); }
+  else if (b.dataset.h) { d.hull = b.dataset.h; while (designSpace(d) > CLASSES[d.hull].space) d.parts.pop(); }
+  else if (b.dataset.add) d.parts.push(b.dataset.add);
+  else if (b.dataset.rm !== undefined) d.parts.splice(+b.dataset.rm, 1);
+  else if (b.dataset.i !== undefined) ED.sel = +b.dataset.i;
+  Sfx.click(); saveFleet(); renderEditor();
+});
+$('edAdd').onclick = () => { playerFleet.push({ hull: 'frigate', parts: ['laser'] }); ED.sel = playerFleet.length - 1; saveFleet(); renderEditor(); };
+$('edReset').onclick = () => { playerFleet = cloneFleet(DEFAULT_FLEET); ED.sel = 0; saveFleet(); renderEditor(); };
+$('edLaunch').onclick = () => { if (fleetCost(playerFleet) <= BUDGET) startGame(); };
+
 // ───────────────────────────── camera
 let camGoal = null;
 function focusOn(p, force) {
@@ -1564,7 +1763,7 @@ function focusOn(p, force) {
   camGoal = { pos: camera.position.clone().add(delta), target: controls.target.clone().add(delta), t: 0 };
 }
 function panKeys(dt) {
-  if (G.state === 'menu') return;
+  if (G.state === 'menu' || G.state === 'editor') return;
   const f = V3(), r = V3();
   camera.getWorldDirection(f); f.y = 0; f.normalize(); r.crossVectors(f, V3(0, 1, 0));
   const mv = V3();
@@ -1578,6 +1777,7 @@ function panKeys(dt) {
 }
 
 // ───────────────────────────── boot
+buildShips(playerFleet, cloneFleet(DEFAULT_FLEET));
 setupBattle();
 controls.autoRotate = true; controls.autoRotateSpeed = 0.35;
 { const flag = ships[0]; camera.position.copy(flag.pos).add(V3(-230, 130, 260)); controls.target.copy(flag.pos).setY(10); }
@@ -1589,8 +1789,10 @@ updatePointScale();
 addEventListener('resize', () => {
   camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
   renderer.setSize(innerWidth, innerHeight); composer.setSize(innerWidth, innerHeight); bloom.resolution.set(innerWidth, innerHeight);
+  edViewOffset();
   updatePointScale();
 });
+if (QS.has('editor')) openEditor();
 if (QS.has('start') || G.auto) { startGame(); camera.position.set(0, 1500, 1750); controls.target.set(0, 0, 250); camGoal = null; }
 
 const clock = new THREE.Clock();
@@ -1606,6 +1808,7 @@ function frame() {
   cloudMat.uniforms.uTime.value = t;
   for (const a of asteroids.values()) { a.mesh.rotation.x += a.spin.x * dt; a.mesh.rotation.y += a.spin.y * dt; a.mesh.rotation.z += a.spin.z * dt; }
   for (const s of ships) s.update(dt, t);
+  if (ED.ship) ED.ship.update(dt, t);
   for (let i = debris.length - 1; i >= 0; i--) {
     const d = debris[i];
     d.life -= dt;
